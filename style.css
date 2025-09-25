@@ -1,0 +1,14 @@
+/* 重置 body 和 html */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Canvas 父容器全屏自适应 */
+#canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}

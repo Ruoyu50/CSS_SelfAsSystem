@@ -1,0 +1,52 @@
+[
+  {
+    "date": "2025-09-25",
+    "time": "am",
+    "Energy": { "value": "high", "certainty": 2 },
+    "Emotion": { "value": "positive", "certainty": 0 },
+    "Attention": { "value": "low", "certainty": 1 },
+    "Motivation": { "value": "medium", "certainty": 2 },
+    "Engagement": { "value": "high", "certainty": 1 },
+    "Meaning": { "value": "negative", "certainty": 0 }
+  },
+  {
+    "date": "2025-09-25",
+    "time": "pm",
+    "Energy": { "value": "low", "certainty": 0 },
+    "Emotion": { "value": "negative", "certainty": 2 },
+    "Attention": { "value": "high", "certainty": 1 },
+    "Motivation": { "value": "low", "certainty": 2 },
+    "Engagement": { "value": "medium", "certainty": 0 },
+    "Meaning": { "value": "positive", "certainty": 1 }
+  },
+  {
+    "date": "2025-09-26",
+    "time": "am",
+    "Energy": { "value": "medium", "certainty": 1 },
+    "Emotion": { "value": "positive", "certainty": 2 },
+    "Attention": { "value": "low", "certainty": 0 },
+    "Motivation": { "value": "high", "certainty": 1 },
+    "Engagement": { "value": "low", "certainty": 2 },
+    "Meaning": { "value": "neutral", "certainty": 0 }
+  },
+  {
+    "date": "2025-09-26",
+    "time": "pm",
+    "Energy": { "value": "high", "certainty": 0 },
+    "Emotion": { "value": "neutral", "certainty": 1 },
+    "Attention": { "value": "medium", "certainty": 2 },
+    "Motivation": { "value": "low", "certainty": 0 },
+    "Engagement": { "value": "high", "certainty": 2 },
+    "Meaning": { "value": "negative", "certainty": 1 }
+  },
+  {
+    "date": "2025-09-27",
+    "time": "am",
+    "Energy": { "value": "low", "certainty": 2 },
+    "Emotion": { "value": "positive", "certainty": 1 },
+    "Attention": { "value": "medium", "certainty": 0 },
+    "Motivation": { "value": "high", "certainty": 2 },
+    "Engagement": { "value": "low", "certainty": 1 },
+    "Meaning": { "value": "neutral", "certainty": 0 }
+  }
+]

@@ -1,0 +1,104 @@
+阶段 0 — 准备 & 版本控制（必须）
+
+目的：初始化项目，确保能运行 HTML。
+	•	新建文件夹、复制文件结构、初始化 git（可选）。
+	•	把上面给的 index.html、style.css、data/mockData.json、data/mockData.csv、空 js 文件放好。
+验收：在浏览器打开 index.html，能看到页面框架与空画布。
+
+⸻
+
+阶段 1 — 最简单的六边形可视化（渲染基础）
+
+目标：实现 Hexagon 的渲染（静态）并渲染一组 mock 数据。
+要做的事：
+	•	在 hexagon.js 实现 Hexagon + Triangle 基本类（不含物理）。
+	•	main.js 在 setup() 加载 mockData.json，为每条记录创建一个 Hexagon，并在 draw() 中调用 hex.draw()。
+验收：
+	•	打开页面能看到若干六边形（由 6 个三角形组成），颜色由 colorMapper 决定。
+	•	验证：六边形绘制正确，顺序正确（triangle indices 对应属性）。
+
+⸻
+
+阶段 2 — 运动与旋转（线速度 + 角速度）
+
+目标：让每个 Hexagon 有 vx,vy,omega 并在画布中移动与自转（AM 顺时针、PM 逆时针）。
+要做的事：
+	•	Hexagon 增加 vx, vy, omega、update(dt)、computeWorldVertices()。
+	•	在 main.draw() 每帧调用 hex.update(dt)，然后 hex.draw()。
+	•	AM 初始化 omega 为负（顺时针），PM 初始化 omega 为正（逆时针）。
+验收：
+	•	六边形在画布中移动并旋转，AM/PM 的角速度方向相反。
+	•	可以用 console.log 输出一个 hex 的 omega 验证方向。
+
+⸻
+
+阶段 3 — 边界反弹 + 顶点检测（记录顶点碰边）
+
+目标：实现顶点画布边缘检测并记录碰撞（不做复杂冲量，仅反转速度分量即可作为第一版）。
+要做的事：
+	•	physics.checkBoundaryCollisions(hex, w, h)：遍历 hex world 顶点，检测是否越界。
+	•	当顶点越界并且相对速度沿边法线指向外侧时：
+	•	简单响应：反转 vx 或 vy（初版），并做小位置修正。
+	•	Logger.logVertexBoundary({hexId, triangleIndex, vertexIndex, edge, vertexPos, timestamp})
+验收：
+	•	顶点碰到边时，页面 console 输出/ UI 统计增加 vertexBoundary 数量。
+	•	Logger.vertexBoundaryCollisions 能导出 JSON/CSV（测试导出）。
+
+⸻
+
+阶段 4 — AM × PM 之间的 vertex–edge 检测（判定）
+
+目标：实现 AM-PM 的点到线段接触检测（不含完整冲量求解，先做检测并记录）。
+要做的事：
+	•	physics.vertexEdgeContactTest(vertex, p, q)：计算最近点 C，距离 d，法线 n。
+	•	在 main.update() 对每个 AM hex 与每个 PM hex 扫描 hexA.vertices × hexB.edges，当 d ≤ tolerance 且相对速度沿 n < 0 则记录：
+	•	Logger.logInteraction({type:'vertex_edge', vertexOwner, edgeOwner, triangleIndex, contactPoint, normal, timestamp})
+	•	先把碰撞响应留为：交换 vx,vy（简单近似），后续替换更真实冲量模型。
+验收：
+	•	AM 与 PM 的接触被检测到并记录（检查 Logger 数组）。
+	•	临时高亮被击中 edge 或 vertex（便于可视化调试）。
+
+⸻
+
+阶段 5 — 弹性冲量响应（精确版）
+
+目标：把碰撞响应替换为物理上正确的弹性冲量（线-角耦合）。
+要做的事：
+	•	在 physics.js 实现 computeImpulseAndApply(hexA, rA, hexB, rB, n, v_rel)，用公式计算 J 并更新 vx, vy, omega（参见前面的公式）。
+	•	在 boundary 碰撞中把边界视为静止刚体（m=inf）。
+	•	做小的穿透修正（position correction）。
+验收：
+	•	碰撞后两物体的 vx, vy, omega 更新合理（观察日志）。
+	•	系统总能保持能量守恒（e≈1 的情况下），不会无故升高/降低速度（观察 long-run）。
+
+⸻
+
+阶段 6 — 完善导入/导出与 UI
+
+目标：实现文件导入（CSV/JSON）、导出交互日志（CSV/JSON）、并完善控件。
+要做的事：
+	•	controls.js 绑文件上传：读取 file → DataImporter.parseCSV/parseJSON → DataImporter.importData(records) → 清空 hexagons 与 logger，并创建 hexagons。
+	•	导出：Logger.exportJSON()、Logger.exportCSV()（包含 vertexBoundary & interactions）。
+	•	UI 显示计数器与导入成功消息。
+验收：
+	•	能上传示例 CSV/JSON，页面用新数据渲染 hexagons。
+	•	能导出交互数据为文件并打开查看。
+
+⸻
+
+阶段 7 — 性能与优化（可选但建议）
+
+目标：当 hex 数量较大时保持流畅。
+要做的事：
+	•	引入 spatial hash / quadtree 在 vertex-edge 检测前做 broad-phase（只检测邻近 hex 对）。
+	•	减少 GC（避免每帧 new 向量，复用对象）。
+	•	调整渲染（只 draw 需要显示的元素或降低帧率）。
+验收：
+	•	100+ hex 在普通浏览器仍能保持可交互帧率（≥30 fps）或合理降帧。
+
+⸻
+
+阶段 8 — 可视化/分析页面（可选）
+
+目标：增加统计图、热力图、事件回放等。
+	•	利用导出的日志做碰撞次数分布、被击中 triangle 热力图等。
