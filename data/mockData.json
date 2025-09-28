@@ -1,0 +1,46 @@
+[
+    {
+    "date": "2025-09-24",
+    "time": "pm",
+    "certainty": 0,
+    "Energy": "high",
+    "Emotion": "positive",
+    "Attention": "medium",
+    "Motivation": "low",
+    "Engagement": "high",
+    "Meaning": "neutral"
+    },
+    {
+    "date": "2025-09-24",
+    "time": "pm",
+    "certainty": 1,
+    "Energy": "medium",
+    "Emotion": "negative",
+    "Attention": "high",
+    "Motivation": "medium",
+    "Engagement": "low",
+    "Meaning": "positive"
+    },
+    {
+    "date": "2025-09-25",
+    "time": "am",
+    "certainty": 0,
+    "Energy": "low",
+    "Emotion": "neutral",
+    "Attention": "low",
+    "Motivation": "high",
+    "Engagement": "medium",
+    "Meaning": "negative"
+    },
+    {
+    "date": "2025-09-25",
+    "time": "pm",
+    "certainty": 2,
+    "Energy": "medium",
+    "Emotion": "neutral",
+    "Attention": "medium",
+    "Motivation": "medium",
+    "Engagement": "medium",
+    "Meaning": "neutral"
+    }
+]
