@@ -46,9 +46,16 @@ window.setup = function() {
 window.draw = function() {
   background(220, 20, 95);
 
-//   console.log("hexagons 数量:", hexagons.length);
+    const dt = deltaTime / 16.6667; // 假设 60fps 为基准，每帧时间标准化
+
+  // 阶段2.1 调试输出：打印第一个 hexagon 的状态
+  // if (hexagons.length > 0) {
+  //   const h = hexagons[0];
+  //   console.log(`第一个 hexagon -> x: ${h.x.toFixed(1)}, y: ${h.y.toFixed(1)}, angle: ${h.angle.toFixed(2)}, vx: ${h.vx.toFixed(2)}, vy: ${h.vy.toFixed(2)}, omega: ${h.omega.toFixed(3)}`);
+  // }
+  // console.log("hexagons 数量:", hexagons.length);
   hexagons.forEach(hex => {
-    hex.update();
+    hex.update(dt);
     hex.draw();
   });
 };
