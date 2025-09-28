@@ -14,6 +14,7 @@ window.preload = function() {
 
 // 改成挂到 window
 window.setup = function() {
+  // window.hexagoZns = hexagons; // 让 hexagons 挂到全局，供 hexagon.js 调试使用
   console.log("setup 执行了");
   const canvas = createCanvas(800, 600);
   canvas.parent("canvas-container");
@@ -46,5 +47,8 @@ window.draw = function() {
   background(220, 20, 95);
 
 //   console.log("hexagons 数量:", hexagons.length);
-  hexagons.forEach(hex => hex.draw());
+  hexagons.forEach(hex => {
+    hex.update();
+    hex.draw();
+  });
 };
