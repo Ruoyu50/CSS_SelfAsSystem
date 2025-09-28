@@ -1,6 +1,7 @@
 import { Hexagon, Triangle } from './hexagon.js';
 import { validateDataArray } from './utils.js';
 import { ColorMapper } from './colorMapper.js';
+import { Physics } from './physics.js';
 let hexagons = [];
 let mockData = [];
 
@@ -53,9 +54,13 @@ window.draw = function() {
   //   const h = hexagons[0];
   //   console.log(`第一个 hexagon -> x: ${h.x.toFixed(1)}, y: ${h.y.toFixed(1)}, angle: ${h.angle.toFixed(2)}, vx: ${h.vx.toFixed(2)}, vy: ${h.vy.toFixed(2)}, omega: ${h.omega.toFixed(3)}`);
   // }
-  // console.log("hexagons 数量:", hexagons.length);
+//   console.log("hexagons 数量:", hexagons.length);
   hexagons.forEach(hex => {
     hex.update(dt);
+    const collisions = Physics.checkBoundaryCollisions(hex, width, height);
+    if (collisions.length > 0) {
+      console.log("碰撞:", collisions);
+    }
     hex.draw();
   });
 };

@@ -79,7 +79,7 @@ export class Hexagon {
     });
   }
 
-update(dt) {
+update(dt=1) {
   //   // 更新位置
   //   this.x += this.vx;
   //   this.y += this.vy;
@@ -117,8 +117,20 @@ update(dt) {
   }
 
   draw() {
-
     this.triangles.forEach(triangle => triangle.draw());
+  }
+
+  // 计算六边形六个顶点的世界坐标（正上方起，逆时针）
+  computeWorldVertices() {
+    const vertices = [];
+    for (let i = 0; i < 6; i++) {
+      const angle = (i * 60 - 90) * PI / 180 + this.angle;
+      vertices.push({
+        x: this.x + this.r * cos(angle),
+        y: this.y + this.r * sin(angle)
+      });
+    }
+    return vertices;
   }
 }
 
