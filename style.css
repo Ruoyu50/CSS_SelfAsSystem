@@ -6,6 +6,11 @@ html, body {
   height: 100%;
 }
 
+#canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 /* Canvas 父容器全屏自适应 */
 #canvas-container {
   width: 100%;
