@@ -8,6 +8,15 @@ export const Logger = {
       timestamp: Date.now()
     };
     this.vertexBoundaryCollisions.push(enriched);
+
+    // 新增：维护最近 N 次碰撞
+    const N = 50;
+    if (!this.recentCollisions) this.recentCollisions = [];
+    this.recentCollisions.push(enriched);
+    if (this.recentCollisions.length > N) {
+      this.recentCollisions.shift();
+    }
+
     console.log("记录 boundary 碰撞:", enriched);
   },
 

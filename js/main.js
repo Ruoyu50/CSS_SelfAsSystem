@@ -3,7 +3,7 @@ import { validateDataArray } from './utils.js';
 import { ColorMapper } from './colorMapper.js';
 import { Physics } from './physics.js';
 import { Logger } from './logger.js';
-window.Logger = Logger;  // 挂到全局
+// window.Logger = Logger;  // 挂到全局
 let hexagons = [];
 let mockData = [];
 
@@ -49,7 +49,7 @@ window.setup = function() {
 window.draw = function() {
   background(220, 20, 95);
 
-    const dt = deltaTime / 16.6667; // 假设 60fps 为基准，每帧时间标准化
+  const dt = deltaTime / 16.6667; // 假设 60fps 为基准，每帧时间标准化
 
   // 阶段2.1 调试输出：打印第一个 hexagon 的状态
   // if (hexagons.length > 0) {
@@ -61,9 +61,11 @@ window.draw = function() {
   hexagons.forEach(hex => {
     hex.update(dt);
     const collisions = Physics.checkBoundaryCollisions(hex, width, height);
-    if (collisions.length > 0) {
-      console.log("碰撞:", collisions);
-    }
+   
+    // if (collisions.length > 0) {
+    //   console.log("碰撞:", collisions);
+    // }
+
     collisions.forEach(c => {
       Logger.logVertexBoundary({
         hexId: hex.id, // 需要的话加唯一 id
@@ -72,6 +74,16 @@ window.draw = function() {
         pos: c.pos
       });
     });
+    // 绘制六边形
     hex.draw();
+  });
+  // 绘制红点：遍历 Logger 所有记录
+  (Logger.recentCollisions || []).forEach(e => {
+    push();
+    colorMode(HSB, 360, 100, 100); // 确保颜色模式正确
+    fill(0, 100, 100);             // 红色
+    noStroke();
+    ellipse(e.pos.x, e.pos.y, 8, 8); // 用 e.pos
+    pop();
   });
 };
