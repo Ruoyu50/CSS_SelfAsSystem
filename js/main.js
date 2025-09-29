@@ -1,4 +1,4 @@
-import { Hexagon, Triangle } from './hexagon.js';
+import { Hexagon } from './hexagon.js';
 import { validateDataArray } from './utils.js';
 import { ColorMapper } from './colorMapper.js';
 import { Physics } from './physics.js';
@@ -69,7 +69,7 @@ window.draw = function() {
     collisions.forEach(c => {
       Logger.logVertexBoundary({
         hexId: hex.id, // 需要的话加唯一 id
-        vertexIndex: c.vertexIndex,
+        triangleIndex: c.triangleIndex,
         edge: c.edge,
         pos: c.pos
       });

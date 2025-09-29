@@ -75,6 +75,46 @@
 	•	在 main.js 的 draw() 里给发生碰撞的顶点画个小红点，方便直观验证。
 	•	验收：碰撞时画布上能闪现标记，和 Logger 输出一致。
 
+phase3.6
+必须任务
+	1.	Logger 扩展字段
+	•	保留现有 vertexBoundary 信息。
+	•	添加可选字段，如：
+	•	三角形索引（triangleIndex）
+	•	六边形中心坐标（hex x, y）
+	•	可选择的 velocity 信息（vx, vy, omega）
+	•	保证导出 JSON/CSV 时这些字段能正确输出。
+	2.	Physics/Hexagon 接口完善
+	•	Hexagon.computeWorldVertices() 保持正确，确保 phase4 扫描顶点时可直接调用。
+	•	Physics.checkBoundaryCollisions() 保持稳定，不修改现有反弹逻辑，但可增加小注释说明各参数意义。
+	•	确保 update()、buildTriangles()、draw() 接口明确，不会破坏数据。
+	3.	数据稳定性检查
+	•	在 draw() 或单元测试中确认：
+	•	hexagon 顶点位置和 vx/vy/omega 正确记录。
+	•	Logger 数据完整且可导出。
+
+⸻
+
+可选优化 / 扩展
+	1.	Logger 调试增强
+	•	提供函数如 Logger.getLastNEvents(n)，方便快速调试。
+	•	可选将 Logger 暂挂到 window（调试用），但最终注释掉。
+	2.	UI / 可视化辅助
+	•	继续在 draw() 中显示红点，但不修改现有动画逻辑。
+	•	可选显示每个 hex 的 id 或碰撞次数。
+	3.	性能优化（轻量）
+	•	保证 Logger 数据不无限增长（recentCollisions 已经实现 N 条限制）。
+	•	确保 update() 的摩擦衰减和 dt 帧率独立逻辑无误。
+
+⸻
+
+验收标准
+	1.	Hexagon 的顶点、速度、角速度数据完整、稳定。
+	2.	Logger 可导出 JSON/CSV，字段齐全。
+	3.	更新 draw() 时红点显示正确。
+	4.	确认 Hexagon/Physics 接口可直接复用到 phase4。
+	5.	不改变现有 phase3.5 的动画或碰撞逻辑。
+
 
 阶段 4 — AM × PM 之间的 vertex–edge 检测（判定）
 

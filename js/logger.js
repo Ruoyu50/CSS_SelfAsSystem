@@ -4,8 +4,13 @@ export const Logger = {
 
   logVertexBoundary(event) {
     const enriched = {
-      ...event,
-      timestamp: Date.now()
+    ...event,
+    timestamp: Date.now(),
+    hexX: event.hex?.x,
+    hexY: event.hex?.y,
+    vx: event.hex?.vx,
+    vy: event.hex?.vy,
+    omega: event.hex?.omega
     };
     this.vertexBoundaryCollisions.push(enriched);
 
