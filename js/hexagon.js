@@ -8,6 +8,8 @@ const ATTRIBUTES_ORDER = [
   "Meaning"
 ];
 
+let HEXAGON_ID_COUNTER = 0;
+
 // 单个三角形
 export class Triangle {
   constructor(vertices, color) {
@@ -32,6 +34,7 @@ export class Triangle {
 // 六边形（由六个三角形组成）
 export class Hexagon {
   constructor(x, y, r, props, colorMapper) {
+    this.id = HEXAGON_ID_COUNTER++;
     this.x = x;
     this.y = y;
     this.r = r;
@@ -111,9 +114,6 @@ update(dt=1) {
     if (this === window.hexagons?.[0]) {
         console.log(`角度: ${this.angle.toFixed(2)}, vx: ${this.vx.toFixed(2)}, vy: ${this.vy.toFixed(2)}, omega: ${this.omega.toFixed(3)}`);
     }
-  
-    // 重建三角形顶点（根据新的位置 & 角度）
-    this.buildTriangles();
   }
 
   draw() {

@@ -2,6 +2,7 @@ import { Hexagon, Triangle } from './hexagon.js';
 import { validateDataArray } from './utils.js';
 import { ColorMapper } from './colorMapper.js';
 import { Physics } from './physics.js';
+import { Logger } from './logger.js';
 let hexagons = [];
 let mockData = [];
 
@@ -15,7 +16,7 @@ window.preload = function() {
 
 // 改成挂到 window
 window.setup = function() {
-  // window.hexagoZns = hexagons; // 让 hexagons 挂到全局，供 hexagon.js 调试使用
+  window.hexagons = hexagons; // 让 hexagons 挂到全局，供 hexagon.js 调试使用
   console.log("setup 执行了");
   const canvas = createCanvas(800, 600);
   canvas.parent("canvas-container");
@@ -55,12 +56,21 @@ window.draw = function() {
   //   console.log(`第一个 hexagon -> x: ${h.x.toFixed(1)}, y: ${h.y.toFixed(1)}, angle: ${h.angle.toFixed(2)}, vx: ${h.vx.toFixed(2)}, vy: ${h.vy.toFixed(2)}, omega: ${h.omega.toFixed(3)}`);
   // }
 //   console.log("hexagons 数量:", hexagons.length);
+
   hexagons.forEach(hex => {
     hex.update(dt);
     const collisions = Physics.checkBoundaryCollisions(hex, width, height);
     if (collisions.length > 0) {
       console.log("碰撞:", collisions);
     }
+    collisions.forEach(c => {
+      Logger.logVertexBoundary({
+        hexId: hex.id, // 需要的话加唯一 id
+        vertexIndex: c.vertexIndex,
+        edge: c.edge,
+        pos: c.pos
+      });
+    });
     hex.draw();
   });
 };
