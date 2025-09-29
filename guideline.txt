@@ -116,6 +116,7 @@ phase3.6
 	5.	不改变现有 phase3.5 的动画或碰撞逻辑。
 
 
+
 阶段 4 — AM × PM 之间的 vertex–edge 检测（判定）
 
 目标：实现 AM-PM 的点到线段接触检测（不含完整冲量求解，先做检测并记录）。
@@ -128,7 +129,22 @@ phase3.6
 	•	AM 与 PM 的接触被检测到并记录（检查 Logger 数组）。
 	•	临时高亮被击中 edge 或 vertex（便于可视化调试）。
 
+	phase4.0 — 基础 vertex–edge 检测
+		•	新增 Physics.vertexEdgeContactTest()
+		•	验证点到线段距离、法线计算正确。
+	phase4.1 — Logger 接入
+		•	在循环中记录 vertex–edge 接触。
+		•	验收：Logger.interactions 有数据，包含 vertexOwner、edgeOwner 等字段。
+	phase4.2 — 可视化高亮（调试）
+		•	在 draw() 中绘制被击中顶点/边的标记。
+		•	验收：高亮点/线显示正确，动画不受影响。
+	phase4.3 — 优化与稳定性
+		•	增加 tolerance 参数，优化检测逻辑（可选 broad-phase）。
+		•	限制 Logger 数据长度，避免无限增长。
+		•	验收：性能稳定，数据完整。
+
 ⸻
+
 
 阶段 5 — 弹性冲量响应（精确版）
 

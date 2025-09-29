@@ -1,9 +1,9 @@
+import { CONFIG } from './config.js';
 import { Hexagon } from './hexagon.js';
 import { validateDataArray } from './utils.js';
 import { ColorMapper } from './colorMapper.js';
 import { Physics } from './physics.js';
 import { Logger } from './logger.js';
-// window.Logger = Logger;  // 挂到全局
 let hexagons = [];
 let mockData = [];
 
@@ -17,15 +17,17 @@ window.preload = function() {
 
 // 改成挂到 window
 window.setup = function() {
-  window.hexagons = hexagons; // 让 hexagons 挂到全局，供 hexagon.js 调试使用
-  console.log("setup 执行了");
-  const canvas = createCanvas(800, 600);
+  // window.hexagons = hexagons; // 让 hexagons 挂到全局，供 hexagon.js 调试使用
+  
+  if (CONFIG.DEBUG) console.log("setup 执行了");  const canvas = createCanvas(800, 600);
   canvas.parent("canvas-container");
   colorMode(HSB, 360, 100, 100);
 
   const dataArray = Array.isArray(mockData) ? mockData : Object.values(mockData || []);
-  console.log("mockData:", mockData);
-  console.log("dataArray:", dataArray);
+  if (CONFIG.DEBUG) {
+    console.log("mockData:", mockData);
+    console.log("dataArray:", dataArray);
+  }
 
   // 使用 import 导入的 validateDataArray
   if (!validateDataArray(dataArray)) {
@@ -34,7 +36,7 @@ window.setup = function() {
     return;
   }
 
-  console.log(`成功加载 ${dataArray.length} 条数据`);
+  if (CONFIG.DEBUG) console.log(`成功加载 ${dataArray.length} 条数据`);
 
   dataArray.forEach((data, index) => {
     const x = random(100, width - 100);
@@ -52,24 +54,67 @@ window.draw = function() {
   const dt = deltaTime / 16.6667; // 假设 60fps 为基准，每帧时间标准化
 
   // 阶段2.1 调试输出：打印第一个 hexagon 的状态
-  // if (hexagons.length > 0) {
-  //   const h = hexagons[0];
-  //   console.log(`第一个 hexagon -> x: ${h.x.toFixed(1)}, y: ${h.y.toFixed(1)}, angle: ${h.angle.toFixed(2)}, vx: ${h.vx.toFixed(2)}, vy: ${h.vy.toFixed(2)}, omega: ${h.omega.toFixed(3)}`);
-  // }
-//   console.log("hexagons 数量:", hexagons.length);
+  if (CONFIG.DEBUG && hexagons.length > 0) {
+    const h = hexagons[0];
+    console.log(`第一个 hexagon -> x: ${h.x.toFixed(1)}, y: ${h.y.toFixed(1)}, angle: ${h.angle.toFixed(2)}, vx: ${h.vx.toFixed(2)}, vy: ${h.vy.toFixed(2)}, omega: ${h.omega.toFixed(3)}`);
+  }
+  // if (CONFIG.DEBUG) console.log("hexagons 数量:", hexagons.length);
+  
+  const tolerance = 5; // 顶点–边接触容差
+
+  hexagons.forEach(hexA => {
+    if (hexA.props.time !== "am") return; // 只做 AM × PM 示例
+
+    hexagons.forEach(hexB => {
+      if (hexB.props.time !== "pm") return;
+
+      const vertices = hexA.computeWorldVertices();
+      const edges = [];
+      const hexBVerts = hexB.computeWorldVertices();
+      for (let i = 0; i < 6; i++) {
+        edges.push({start: hexBVerts[i], end: hexBVerts[(i+1)%6]});
+      }
+
+      vertices.forEach((v, vi) => {
+        edges.forEach((e, ei) => {
+          const res = Physics.vertexEdgeContactTest(v, e.start, e.end);
+          // ✅ 在这里加调试输出
+          if (CONFIG.DEBUG) {
+            console.log(
+              `检测: 顶点(${v.x.toFixed(1)},${v.y.toFixed(1)}) 最近点=(${res.closestPoint.x.toFixed(1)},${res.closestPoint.y.toFixed(1)}), 距离=${res.distance.toFixed(2)}, 法线=(${res.normal.x.toFixed(2)},${res.normal.y.toFixed(2)})`
+            );
+          }
+          if (res.distance <= tolerance) {
+            // 简单响应：交换速度分量
+            [hexA.vx, hexB.vx] = [hexB.vx, hexA.vx];
+            [hexA.vy, hexB.vy] = [hexB.vy, hexA.vy];
+
+            // Logger
+            Logger.logVertexBoundary({
+              hexId: hexA.id,
+              vertexIndex: vi,
+              edge: ei,
+              pos: res.closestPoint,
+              hex: hexA
+            });
+          }
+        });
+      });
+    });
+  });
 
   hexagons.forEach(hex => {
     hex.update(dt);
     const collisions = Physics.checkBoundaryCollisions(hex, width, height);
-   
-    // if (collisions.length > 0) {
+
+    // if (CONFIG.DEBUG && collisions.length > 0) {
     //   console.log("碰撞:", collisions);
     // }
 
     collisions.forEach(c => {
       Logger.logVertexBoundary({
-        hexId: hex.id, // 需要的话加唯一 id
-        triangleIndex: c.triangleIndex,
+        hexId: hex.id,
+        vertexIndex: c.vertexIndex,
         edge: c.edge,
         pos: c.pos
       });

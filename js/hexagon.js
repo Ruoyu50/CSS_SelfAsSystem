@@ -1,3 +1,6 @@
+import { CONFIG } from './config.js';
+
+const DEBUG = false;
 // 固定六个属性的顺序（逆时针，从正上方开始）
 const ATTRIBUTES_ORDER = [
   "Energy",
@@ -88,16 +91,12 @@ update(dt=1) {
     this.y += this.vy * dt;
 
     // 限制速度范围，避免飞出画布过快
-    const maxSpeed = 5;
-    this.vx = constrain(this.vx, -maxSpeed, maxSpeed);
-    this.vy = constrain(this.vy, -maxSpeed, maxSpeed);
-
+    this.vx = constrain(this.vx, -CONFIG.physics.maxSpeed, CONFIG.physics.maxSpeed);
+    this.vy = constrain(this.vy, -CONFIG.physics.maxSpeed, CONFIG.physics.maxSpeed);
     // 摩擦衰减
-    const friction = 0.995;
-    this.vx *= friction;
-    this.vy *= friction;
-    // 角速度衰减
-    this.omega *= friction;
+this.vx *= CONFIG.physics.friction;
+this.vy *= CONFIG.physics.friction;
+this.omega *= CONFIG.physics.friction;
 
     // 更新角度
     this.angle += this.omega * dt;
@@ -106,7 +105,7 @@ update(dt=1) {
     this.buildTriangles();
 
     // 调试输出：第一个 hexagon
-    if (this === window.hexagons?.[0]) {
+    if (CONFIG.DEBUG && this === window.hexagons?.[0]) {
         console.log(`角度: ${this.angle.toFixed(2)}, vx: ${this.vx.toFixed(2)}, vy: ${this.vy.toFixed(2)}, omega: ${this.omega.toFixed(3)}`);
     }
   }

@@ -4,13 +4,14 @@ export const Logger = {
 
   logVertexBoundary(event) {
     const enriched = {
-    ...event,
-    timestamp: Date.now(),
-    hexX: event.hex?.x,
-    hexY: event.hex?.y,
-    vx: event.hex?.vx,
-    vy: event.hex?.vy,
-    omega: event.hex?.omega
+      ...event,
+      timestamp: Date.now(),
+      hexX: event.hex?.x,
+      hexY: event.hex?.y,
+      vx: event.hex?.vx,
+      vy: event.hex?.vy,
+      omega: event.hex?.omega
+      // triangleIndex: event.triangleIndex // 不再使用 triangleIndex 字段
     };
     this.vertexBoundaryCollisions.push(enriched);
 
@@ -34,11 +35,11 @@ export const Logger = {
    * @returns {string}
    */
   exportCSV() {
-    if (this.vertexBoundaryCollisions.length === 0) {
-      return "hexId,vertexIndex,edge,pos_x,pos_y,timestamp\n";
-    }
-    // 取所有字段，按首条为准
-    const fields = ["hexId", "vertexIndex", "edge", "pos_x", "pos_y", "timestamp"];
+    // All available fields: hexId, vertexIndex, edge, pos_x, pos_y, timestamp, hexX, hexY, vx, vy, omega
+    const fields = [
+      "hexId", "vertexIndex", "edge", "pos_x", "pos_y", "timestamp",
+      "hexX", "hexY", "vx", "vy", "omega"
+    ];
     const lines = [fields.join(",")];
     this.vertexBoundaryCollisions.forEach(e => {
       const row = [
@@ -47,7 +48,12 @@ export const Logger = {
         e.edge,
         e.pos && typeof e.pos.x === "number" ? e.pos.x : "",
         e.pos && typeof e.pos.y === "number" ? e.pos.y : "",
-        e.timestamp
+        e.timestamp,
+        typeof e.hexX === "number" ? e.hexX : "",
+        typeof e.hexY === "number" ? e.hexY : "",
+        typeof e.vx === "number" ? e.vx : "",
+        typeof e.vy === "number" ? e.vy : "",
+        typeof e.omega === "number" ? e.omega : ""
       ];
       lines.push(row.join(","));
     });
