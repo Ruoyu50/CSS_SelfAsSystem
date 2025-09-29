@@ -3,6 +3,7 @@ import { validateDataArray } from './utils.js';
 import { ColorMapper } from './colorMapper.js';
 import { Physics } from './physics.js';
 import { Logger } from './logger.js';
+window.Logger = Logger;  // 挂到全局
 let hexagons = [];
 let mockData = [];
 

@@ -15,6 +15,31 @@ export const Logger = {
     return JSON.stringify(this.vertexBoundaryCollisions, null, 2);
   },
 
+  /**
+   * 导出为 CSV 字符串
+   * @returns {string}
+   */
+  exportCSV() {
+    if (this.vertexBoundaryCollisions.length === 0) {
+      return "hexId,vertexIndex,edge,pos_x,pos_y,timestamp\n";
+    }
+    // 取所有字段，按首条为准
+    const fields = ["hexId", "vertexIndex", "edge", "pos_x", "pos_y", "timestamp"];
+    const lines = [fields.join(",")];
+    this.vertexBoundaryCollisions.forEach(e => {
+      const row = [
+        e.hexId,
+        e.vertexIndex,
+        e.edge,
+        e.pos && typeof e.pos.x === "number" ? e.pos.x : "",
+        e.pos && typeof e.pos.y === "number" ? e.pos.y : "",
+        e.timestamp
+      ];
+      lines.push(row.join(","));
+    });
+    return lines.join("\n");
+  },
+
   clear() {
     this.vertexBoundaryCollisions = [];
   },

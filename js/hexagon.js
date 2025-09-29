@@ -93,7 +93,7 @@ update(dt=1) {
     this.vy = constrain(this.vy, -maxSpeed, maxSpeed);
 
     // 摩擦衰减
-    const friction = 0.999;
+    const friction = 0.995;
     this.vx *= friction;
     this.vy *= friction;
     // 角速度衰减
