@@ -6,7 +6,7 @@ export const Physics = {
 
     vertices.forEach((v, i) => {
       if (v.x < 0) {
-        hex.vx *= -1;
+        hex.vx *= -1.05;
         hex.x = Math.max(hex.x, hex.r);
         collisions.push({vertexIndex: i, edge: 'left', pos: v});
       } else if (v.x > w) {

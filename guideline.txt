@@ -47,6 +47,7 @@
 	•	2.1 改进完成后可选择合并到 main 或保留分支名
 	•	阶段三直接在 phase2.1 上开发，不影响 2.0 历史
 	
+	
 阶段 3 — 边界反弹 + 顶点检测（记录顶点碰边）
 
 目标：实现顶点画布边缘检测并记录碰撞（不做复杂冲量，仅反转速度分量即可作为第一版）。
@@ -60,6 +61,20 @@
 	•	Logger.vertexBoundaryCollisions 能导出 JSON/CSV（测试导出）。
 
 ⸻
+
+	•	phase3.2 — 速度衰减/摩擦优化
+	•	在 Hexagon.update() 里加入摩擦系数（例如 0.99），防止速度无限增长，使运动更自然。
+	•	验收：长时间运行后六边形不会失控，速度逐渐平稳。
+	•	phase3.3 — Logger 统计 API
+	•	在 logger.js 里增加统计方法，例如 countCollisionsByHex(hexId)。
+	•	验收：能在控制台查询某个 hex 的碰撞次数，Logger 支持简单分析。
+	•	phase3.4 — 导出功能（JSON/CSV 基础版）
+	•	在 Logger 增加 exportCSV()，和已有 exportJSON() 并行。
+	•	验收：可将日志导出成字符串 CSV，确认内容结构正确。
+	•	phase3.5 — 可视化辅助调试（可选）
+	•	在 main.js 的 draw() 里给发生碰撞的顶点画个小红点，方便直观验证。
+	•	验收：碰撞时画布上能闪现标记，和 Logger 输出一致。
+
 
 阶段 4 — AM × PM 之间的 vertex–edge 检测（判定）
 

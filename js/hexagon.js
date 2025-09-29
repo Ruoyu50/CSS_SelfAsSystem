@@ -83,19 +83,7 @@ export class Hexagon {
   }
 
 update(dt=1) {
-  //   // 更新位置
-  //   this.x += this.vx;
-  //   this.y += this.vy;
-
-  //   // 更新角度
-  //   this.angle += this.omega;
-
-  //   // 调试输出：每帧打印角度和速度（可以先只对第一个 hex 打印）
-  // if (this === window.hexagons?.[0]) {
-  //   console.log(`角度: ${this.angle.toFixed(2)}, vx: ${this.vx.toFixed(2)}, vy: ${this.vy.toFixed(2)}, omega: ${this.omega.toFixed(3)}`);
-  // }
-
-      // 帧率独立：速度乘以 dt
+    // 帧率独立：速度乘以 dt
     this.x += this.vx * dt;
     this.y += this.vy * dt;
 
@@ -103,6 +91,13 @@ update(dt=1) {
     const maxSpeed = 5;
     this.vx = constrain(this.vx, -maxSpeed, maxSpeed);
     this.vy = constrain(this.vy, -maxSpeed, maxSpeed);
+
+    // 摩擦衰减
+    const friction = 0.999;
+    this.vx *= friction;
+    this.vy *= friction;
+    // 角速度衰减
+    this.omega *= friction;
 
     // 更新角度
     this.angle += this.omega * dt;
