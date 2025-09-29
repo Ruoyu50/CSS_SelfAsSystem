@@ -1,6 +1,4 @@
 import { CONFIG } from './config.js';
-
-const DEBUG = false;
 // 固定六个属性的顺序（逆时针，从正上方开始）
 const ATTRIBUTES_ORDER = [
   "Energy",

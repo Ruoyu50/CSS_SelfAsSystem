@@ -1,6 +1,23 @@
+    /**
+     * @typedef {Object} InteractionEvent
+     * @property {string} type
+     * @property {number} vertexOwner
+     * @property {number} edgeOwner
+     * @property {number} vertexIndex
+     * @property {number} edge
+     * @property {{x:number, y:number}} contactPoint
+     * @property {{x:number, y:number}} normal
+     * @property {number} [timestamp]   // 改成可选
+     */
+
+// js/logger.js
+import { CONFIG } from './config.js';
 // js/logger.js
 export const Logger = {
-  vertexBoundaryCollisions: [],
+    vertexBoundaryCollisions: [],
+    
+    /** @type {InteractionEvent[]} */
+    interactions: [],
 
   logVertexBoundary(event) {
     const enriched = {
@@ -15,17 +32,39 @@ export const Logger = {
     };
     this.vertexBoundaryCollisions.push(enriched);
 
-    // 新增：维护最近 N 次碰撞
-    const N = 50;
+    // 保留最近 N 条
+    const N = CONFIG.physics.recentCollisionsN || 50;
     if (!this.recentCollisions) this.recentCollisions = [];
     this.recentCollisions.push(enriched);
     if (this.recentCollisions.length > N) {
       this.recentCollisions.shift();
     }
 
-    console.log("记录 boundary 碰撞:", enriched);
+    if (CONFIG.DEBUG) {
+      console.log("记录 boundary 碰撞:", enriched);
+    }
   },
 
+
+  // 新方法：记录 vertex–edge 碰撞
+  logInteraction(event) {
+    const enriched = {
+      ...event,
+      timestamp: Date.now()
+    };
+    this.interactions.push(enriched);
+
+    const N = CONFIG.physics.recentCollisionsN || 50;
+    if (this.interactions.length > N) {
+      this.interactions.shift();
+    }
+
+    if (CONFIG.DEBUG) {
+      console.log("记录 vertex-edge 碰撞:", enriched);
+    }
+  },
+
+    // 导出 JSON（只导出 boundary 碰撞，vertex-edge 后续扩展）
   exportJSON() {
     return JSON.stringify(this.vertexBoundaryCollisions, null, 2);
   },
@@ -34,6 +73,8 @@ export const Logger = {
    * 导出为 CSV 字符串
    * @returns {string}
    */
+
+  // 导出 CSV（暂时不包含 vertex-edge）
   exportCSV() {
     // All available fields: hexId, vertexIndex, edge, pos_x, pos_y, timestamp, hexX, hexY, vx, vy, omega
     const fields = [
@@ -62,6 +103,7 @@ export const Logger = {
 
   clear() {
     this.vertexBoundaryCollisions = [];
+    this.interactions = [];
   },
 
   // phase3.3 统计方法

@@ -32,7 +32,7 @@ window.setup = function() {
   // 使用 import 导入的 validateDataArray
   if (!validateDataArray(dataArray)) {
     console.error("mockData.json 数据不完整，请检查字段！");
-    noLoop(); // 停止 draw 循环
+    noLoop();
     return;
   }
 
@@ -42,7 +42,6 @@ window.setup = function() {
     const x = random(100, width - 100);
     const y = random(100, height - 100);
     const r = 50;
-
     const hex = new Hexagon(x, y, r, data, ColorMapper);
     hexagons.push(hex);
   });
@@ -89,13 +88,15 @@ window.draw = function() {
             [hexA.vx, hexB.vx] = [hexB.vx, hexA.vx];
             [hexA.vy, hexB.vy] = [hexB.vy, hexA.vy];
 
-            // Logger
-            Logger.logVertexBoundary({
-              hexId: hexA.id,
+            // ✅ Logger 新接口
+            Logger.logInteraction({
+              type: 'vertex_edge',
+              vertexOwner: hexA.id,
+              edgeOwner: hexB.id,
               vertexIndex: vi,
               edge: ei,
-              pos: res.closestPoint,
-              hex: hexA
+              contactPoint: res.closestPoint,
+              normal: res.normal
             });
           }
         });
