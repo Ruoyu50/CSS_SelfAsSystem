@@ -29,36 +29,32 @@ export const Physics = {
     return collisions;
   },
 
-  // phase4.0: 计算 vertex 到 edge 最近点、距离和法线
-  vertexEdgeContactTest(vertex, edgeStart, edgeEnd) {
+// js/physics.js
+    vertexEdgeContactTest(vertex, edgeStart, edgeEnd) {
     const dx = edgeEnd.x - edgeStart.x;
     const dy = edgeEnd.y - edgeStart.y;
     const lengthSq = dx*dx + dy*dy;
 
-    // 投影参数 t
     let t = ((vertex.x - edgeStart.x) * dx + (vertex.y - edgeStart.y) * dy) / lengthSq;
     t = constrain(t, 0, 1);
 
-    // 最近点
     const closest = {
-      x: edgeStart.x + t * dx,
-      y: edgeStart.y + t * dy
+        x: edgeStart.x + t * dx,
+        y: edgeStart.y + t * dy
     };
 
-    // 距离向量
     const distVec = {
-      x: vertex.x - closest.x,
-      y: vertex.y - closest.y
+        x: vertex.x - closest.x,
+        y: vertex.y - closest.y
     };
-
     const distance = Math.sqrt(distVec.x*distVec.x + distVec.y*distVec.y);
 
-    // 法线 (垂直于 edge)
-    const normal = {x: -dy, y: dx};
-    const normLength = Math.sqrt(normal.x*normal.x + normal.y*normal.y);
-    normal.x /= normLength;
-    normal.y /= normLength;
+    // 边的中点
+    const edgeMid = {
+        x: (edgeStart.x + edgeEnd.x) / 2,
+        y: (edgeStart.y + edgeEnd.y) / 2
+    };
 
-    return {closestPoint: closest, distance, normal};
-  }
+    return {closestPoint: closest, distance, edgeMid};
+    }
 };

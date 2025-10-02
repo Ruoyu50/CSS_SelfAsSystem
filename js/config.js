@@ -1,7 +1,7 @@
 export const CONFIG = {
-  DEBUG: false,
+  DEBUG: true,
   physics: {
-    friction: 0.995,
+    friction: 1,
     maxSpeed: 5,
     tolerance: 5,
     recentCollisionsN: 50

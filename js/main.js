@@ -58,51 +58,78 @@ window.draw = function() {
     console.log(`第一个 hexagon -> x: ${h.x.toFixed(1)}, y: ${h.y.toFixed(1)}, angle: ${h.angle.toFixed(2)}, vx: ${h.vx.toFixed(2)}, vy: ${h.vy.toFixed(2)}, omega: ${h.omega.toFixed(3)}`);
   }
   // if (CONFIG.DEBUG) console.log("hexagons 数量:", hexagons.length);
-  
-  const tolerance = 5; // 顶点–边接触容差
 
-  hexagons.forEach(hexA => {
-    if (hexA.props.time !== "am") return; // 只做 AM × PM 示例
 
-    hexagons.forEach(hexB => {
-      if (hexB.props.time !== "pm") return;
+// --- 顶点–边交互检测（phase4.2 动态点积 + 统一法线） ---
+const tolerance = CONFIG.physics.tolerance;
 
-      const vertices = hexA.computeWorldVertices();
-      const edges = [];
-      const hexBVerts = hexB.computeWorldVertices();
-      for (let i = 0; i < 6; i++) {
-        edges.push({start: hexBVerts[i], end: hexBVerts[(i+1)%6]});
-      }
+// 顶点–边检测函数，避免重复代码
+function detectVertexEdgeInteraction(hexA, hexB) {
+  const vertices = hexA.computeWorldVertices();
+  const hexBVerts = hexB.computeWorldVertices();
+  const edges = [];
+  for (let i = 0; i < 6; i++) {
+    edges.push({start: hexBVerts[i], end: hexBVerts[(i+1)%6]});
+  }
 
-      vertices.forEach((v, vi) => {
-        edges.forEach((e, ei) => {
-          const res = Physics.vertexEdgeContactTest(v, e.start, e.end);
-          // ✅ 在这里加调试输出
-          if (CONFIG.DEBUG) {
-            console.log(
-              `检测: 顶点(${v.x.toFixed(1)},${v.y.toFixed(1)}) 最近点=(${res.closestPoint.x.toFixed(1)},${res.closestPoint.y.toFixed(1)}), 距离=${res.distance.toFixed(2)}, 法线=(${res.normal.x.toFixed(2)},${res.normal.y.toFixed(2)})`
-            );
-          }
-          if (res.distance <= tolerance) {
-            // 简单响应：交换速度分量
-            [hexA.vx, hexB.vx] = [hexB.vx, hexA.vx];
-            [hexA.vy, hexB.vy] = [hexB.vy, hexA.vy];
+  vertices.forEach((v, vi) => {
+    edges.forEach((e, ei) => {
+      const res = Physics.vertexEdgeContactTest(v, e.start, e.end);
+      if (res.distance <= tolerance) {
+        // 统一法线朝外
+        const centerToMid = {
+          x: res.edgeMid.x - hexB.x,
+          y: res.edgeMid.y - hexB.y
+        };
+        const len = Math.sqrt(centerToMid.x**2 + centerToMid.y**2);
+        const normal = { x: centerToMid.x / len, y: centerToMid.y / len };
 
-            // ✅ Logger 新接口
-            Logger.logInteraction({
-              type: 'vertex_edge',
-              vertexOwner: hexA.id,
-              edgeOwner: hexB.id,
-              vertexIndex: vi,
-              edge: ei,
-              contactPoint: res.closestPoint,
-              normal: res.normal
-            });
-          }
+        // 顶点速度向量
+        const vRel = { x: hexA.vx, y: hexA.vy };
+        const dot = vRel.x * normal.x + vRel.y * normal.y;
+
+        if (dot < 0) {
+          [hexA.vx, hexB.vx] = [hexB.vx, hexA.vx];
+          [hexA.vy, hexB.vy] = [hexB.vy, hexA.vy];
+        }
+
+        Logger.logInteraction({
+          type: 'vertex_edge',
+          vertexOwner: hexA.id,
+          edgeOwner: hexB.id,
+          vertexIndex: vi,
+          edge: ei,
+          contactPoint: res.closestPoint,
+          normal: normal
         });
-      });
+
+        if (CONFIG.DEBUG) {
+          console.log(
+            `检测: 顶点(${v.x.toFixed(1)},${v.y.toFixed(1)}) 最近点=(${res.closestPoint.x.toFixed(1)},${res.closestPoint.y.toFixed(1)}), 距离=${res.distance.toFixed(2)}, 外法线=(${normal.x.toFixed(2)},${normal.y.toFixed(2)}), 点积=${dot.toFixed(2)}`
+          );
+        }
+      }
     });
   });
+}
+
+// AM → PM
+hexagons.forEach(hexA => {
+  if (hexA.props.time !== "am") return;
+  hexagons.forEach(hexB => {
+    if (hexB.props.time !== "pm") return;
+    detectVertexEdgeInteraction(hexA, hexB);
+  });
+});
+
+// PM → AM
+hexagons.forEach(hexA => {
+  if (hexA.props.time !== "pm") return;
+  hexagons.forEach(hexB => {
+    if (hexB.props.time !== "am") return;
+    detectVertexEdgeInteraction(hexA, hexB);
+  });
+});
 
   hexagons.forEach(hex => {
     hex.update(dt);
@@ -113,11 +140,12 @@ window.draw = function() {
     // }
 
     collisions.forEach(c => {
-      Logger.logVertexBoundary({
+        Logger.logVertexBoundary({
         hexId: hex.id,
         vertexIndex: c.vertexIndex,
         edge: c.edge,
-        pos: c.pos
+        pos: c.pos,
+        hex
       });
     });
     // 绘制六边形
@@ -132,4 +160,24 @@ window.draw = function() {
     ellipse(e.pos.x, e.pos.y, 8, 8); // 用 e.pos
     pop();
   });
+  // 可视化 vertex-edge 交互（phase4.21）
+(Logger.recentInteractions || []).forEach(e => {
+  if (!e.contactPoint) return;
+  push();
+  colorMode(HSB, 360, 100, 100);
+
+  // 蓝点表示 contactPoint
+  noStroke();
+  fill(200, 80, 90);
+  ellipse(e.contactPoint.x, e.contactPoint.y, 8, 8);
+
+  // 画法线方向的小线段（便于看出法线方向）
+  stroke(200, 80, 90);
+  strokeWeight(2);
+  const nx = e.normal?.x ?? 0;
+  const ny = e.normal?.y ?? 0;
+  const len = 14;
+  line(e.contactPoint.x, e.contactPoint.y, e.contactPoint.x + nx * len, e.contactPoint.y + ny * len);
+  pop();
+});
 };

@@ -1,23 +1,26 @@
-    /**
-     * @typedef {Object} InteractionEvent
-     * @property {string} type
-     * @property {number} vertexOwner
-     * @property {number} edgeOwner
-     * @property {number} vertexIndex
-     * @property {number} edge
-     * @property {{x:number, y:number}} contactPoint
-     * @property {{x:number, y:number}} normal
-     * @property {number} [timestamp]   // 改成可选
-     */
+/**
+ * @typedef {Object} InteractionEvent
+ * @property {string} type - 事件类型，例如 'vertex_edge' 或其他
+ * @property {number} vertexOwner - 顶点所属 hex ID
+ * @property {number} edgeOwner - 边所属 hex ID
+ * @property {number} vertexIndex - 顶点索引
+ * @property {number} edge - 边索引
+ * @property {{x:number, y:number}} contactPoint - 顶点到边的最近点
+ * @property {{x:number, y:number}} normal - 法线向量
+ * @property {number} [timestamp] - 可选时间戳，如果未提供自动生成
+ */
 
 // js/logger.js
 import { CONFIG } from './config.js';
 // js/logger.js
 export const Logger = {
-    vertexBoundaryCollisions: [],
+    vertexBoundaryCollisions: /** @type {any[]} */ ([]),
     
     /** @type {InteractionEvent[]} */
     interactions: [],
+
+    /** @type {InteractionEvent[]}  最近用于可视化的交互缓存（长度受 CONFIG.physics.recentCollisionsN 控制） */
+    recentInteractions: [],
 
   logVertexBoundary(event) {
     const enriched = {
@@ -55,7 +58,13 @@ export const Logger = {
     this.interactions.push(enriched);
 
     const N = CONFIG.physics.recentCollisionsN || 50;
+    this.recentInteractions.push(enriched);
     if (this.interactions.length > N) {
+      this.interactions.shift();
+    }
+
+    // 保持 interactions 不无限增长（可选：和 recent 分开）
+    if (this.interactions.length > 10000) { // 一个安全上限，按需调整
       this.interactions.shift();
     }
 
@@ -84,22 +93,22 @@ export const Logger = {
     const lines = [fields.join(",")];
     this.vertexBoundaryCollisions.forEach(e => {
       const row = [
-        e.hexId,
-        e.vertexIndex,
-        e.edge,
-        e.pos && typeof e.pos.x === "number" ? e.pos.x : "",
-        e.pos && typeof e.pos.y === "number" ? e.pos.y : "",
-        e.timestamp,
-        typeof e.hexX === "number" ? e.hexX : "",
-        typeof e.hexY === "number" ? e.hexY : "",
-        typeof e.vx === "number" ? e.vx : "",
-        typeof e.vy === "number" ? e.vy : "",
-        typeof e.omega === "number" ? e.omega : ""
-      ];
-      lines.push(row.join(","));
-    });
-    return lines.join("\n");
-  },
+                e.hexId,
+                e.vertexIndex,
+                e.edge,
+                e.pos?.x ?? "",
+                e.pos?.y ?? "",
+                e.timestamp,
+                e.hexX ?? "",
+                e.hexY ?? "",
+                e.vx ?? "",
+                e.vy ?? "",
+                e.omega ?? ""
+            ];
+            lines.push(row.join(","));
+        });
+        return lines.join("\n");
+    },
 
   clear() {
     this.vertexBoundaryCollisions = [];
