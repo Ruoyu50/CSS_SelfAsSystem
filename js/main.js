@@ -4,6 +4,9 @@ import { validateDataArray } from './utils.js';
 import { ColorMapper } from './colorMapper.js';
 import { Physics } from './physics.js';
 import { Logger } from './logger.js';
+import { DataManager } from './dManager.js';
+import { setupControls } from './controls.js';
+
 let hexagons = [];
 let mockData = [];
 
@@ -45,6 +48,7 @@ window.setup = function() {
     const hex = new Hexagon(x, y, r, data, ColorMapper);
     hexagons.push(hex);
   });
+  setupControls(); // 绑定导入/导出按钮
 };
 
 window.draw = function() {
@@ -95,8 +99,8 @@ function detectVertexEdgeInteraction(hexA, hexB) {
 
         Logger.logInteraction({
           type: 'vertex_edge',
-          vertexOwner: hexA.id,
-          edgeOwner: hexB.id,
+          vertexOwnerDate: hexA.props.date,
+          edgeOwnerDate: hexB.props.date,
           vertexIndex: vi,
           edge: ei,
           contactPoint: res.closestPoint,

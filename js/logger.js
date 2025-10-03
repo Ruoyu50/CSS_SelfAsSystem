@@ -53,6 +53,8 @@ export const Logger = {
   logInteraction(event) {
     const enriched = {
       ...event,
+      vertexOwnerDate: event.vertexOwnerDate ?? null,
+      edgeOwnerDate: event.edgeOwnerDate ?? null,
       timestamp: Date.now()
     };
     this.interactions.push(enriched);
@@ -73,19 +75,29 @@ export const Logger = {
     }
   },
 
-    // 导出 JSON（只导出 boundary 碰撞，vertex-edge 后续扩展）
+    // 导出 JSON（导出 boundary 碰撞和 vertex-edge 交互）
   exportJSON() {
-    return JSON.stringify(this.vertexBoundaryCollisions, null, 2);
+    // For edge translation:
+    const edgeAttributes = ["Energy", "Emotion", "Attention", "Motivation", "Engagement", "Meaning"];
+    // Map interactions for JSON output
+    const mappedInteractions = this.interactions.map(e => ({
+      ...e,
+      edge: (typeof e.edge === "number" ? (edgeAttributes[e.edge] ?? e.edge) : e.edge),
+      vertexOwnerDate: e.vertexOwnerDate ?? null,
+      edgeOwnerDate: e.edgeOwnerDate ?? null
+    }));
+    return JSON.stringify({
+      vertexBoundaryCollisions: this.vertexBoundaryCollisions,
+      interactions: mappedInteractions
+    }, null, 2);
   },
 
   /**
    * 导出为 CSV 字符串
    * @returns {string}
    */
-
-  // 导出 CSV（暂时不包含 vertex-edge）
   exportCSV() {
-    // All available fields: hexId, vertexIndex, edge, pos_x, pos_y, timestamp, hexX, hexY, vx, vy, omega
+    // Boundary collisions section
     const fields = [
       "hexId", "vertexIndex", "edge", "pos_x", "pos_y", "timestamp",
       "hexX", "hexY", "vx", "vy", "omega"
@@ -93,22 +105,48 @@ export const Logger = {
     const lines = [fields.join(",")];
     this.vertexBoundaryCollisions.forEach(e => {
       const row = [
-                e.hexId,
-                e.vertexIndex,
-                e.edge,
-                e.pos?.x ?? "",
-                e.pos?.y ?? "",
-                e.timestamp,
-                e.hexX ?? "",
-                e.hexY ?? "",
-                e.vx ?? "",
-                e.vy ?? "",
-                e.omega ?? ""
-            ];
-            lines.push(row.join(","));
-        });
-        return lines.join("\n");
-    },
+        e.hexId,
+        e.vertexIndex,
+        e.edge,
+        e.pos?.x ?? "",
+        e.pos?.y ?? "",
+        e.timestamp,
+        e.hexX ?? "",
+        e.hexY ?? "",
+        e.vx ?? "",
+        e.vy ?? "",
+        e.omega ?? ""
+      ];
+      lines.push(row.join(","));
+    });
+    // Interactions section
+    lines.push(""); // blank line
+    lines.push("--- vertex-edge interactions ---");
+    // Updated intFields: add vertexOwnerDate, edgeOwnerDate between type and vertexIndex
+    const intFields = [
+      "type", "vertexOwnerDate", "edgeOwnerDate", "vertexIndex", "edge",
+      "contact_x", "contact_y", "normal_x", "normal_y", "timestamp"
+    ];
+    lines.push(intFields.join(","));
+    // Edge attribute mapping
+    const edgeAttributes = ["Energy", "Emotion", "Attention", "Motivation", "Engagement", "Meaning"];
+    this.interactions.forEach(e => {
+      const row = [
+        e.type ?? "",
+        e.vertexOwnerDate ?? "",
+        e.edgeOwnerDate ?? "",
+        e.vertexIndex ?? "",
+        (typeof e.edge === "number" ? (edgeAttributes[e.edge] ?? e.edge) : e.edge ?? ""),
+        e.contactPoint?.x ?? "",
+        e.contactPoint?.y ?? "",
+        e.normal?.x ?? "",
+        e.normal?.y ?? "",
+        e.timestamp ?? ""
+      ];
+      lines.push(row.join(","));
+    });
+    return lines.join("\n");
+  },
 
   clear() {
     this.vertexBoundaryCollisions = [];
