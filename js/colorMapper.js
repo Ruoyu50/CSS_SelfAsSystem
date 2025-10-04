@@ -10,10 +10,10 @@ export const ColorMapper = {
 
   mapAttributeToBaseColor(attrName, attrValue) {
     const hue = this.attributeHues[attrName] || 0;
-    let saturation = 80;
-    if (attrValue.includes('high') || attrValue.includes('positive')) saturation = 120;
-    else if (attrValue.includes('medium') || attrValue.includes('neutral')) saturation = 70;
-    else if (attrValue.includes('low') || attrValue.includes('negative')) saturation = 20;
+    let saturation = 85;
+    if (attrValue.includes('high') || attrValue.includes('positive')) saturation = 100;
+    else if (attrValue.includes('medium') || attrValue.includes('neutral')) saturation = 85;
+    else if (attrValue.includes('low') || attrValue.includes('negative')) saturation = 70;
     return [hue, saturation, 80]; // [h, s, b]
   },
 
@@ -25,10 +25,10 @@ export const ColorMapper = {
 
     let brightness;
     switch(certainty) {
-      case 0: brightness = 20; break;   // 低
-      case 1: brightness = 70; break;   // 中
-      case 2: brightness = 120; break;  // 高
-      default: brightness = 70; break;
+      case 0: brightness = 60; break;   // 低
+      case 1: brightness = 80; break;   // 中
+      case 2: brightness = 100; break;  // 高
+      default: brightness = 80; break;
     }
     return [baseColor[0], baseColor[1], brightness];
   }

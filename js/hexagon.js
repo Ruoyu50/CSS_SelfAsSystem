@@ -21,8 +21,9 @@ export class Triangle {
   draw() {
     push();
     fill(this.color[0], this.color[1], this.color[2]);
-    stroke(0, 0, 20);
-    strokeWeight(1);
+    // stroke(0, 0, 20);
+    // strokeWeight(1);
+    noStroke();
     beginShape();
     this.vertices.forEach(v => {
       vertex(v.x, v.y);
